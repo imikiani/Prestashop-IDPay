@@ -49,25 +49,27 @@ if (isset($_GET['do'])) {
             curl_close($ch);
 
             if ($http_status != 200) {
-                echo $idpay->error(sprintf('خطا هنگام بررسی وضعیت تراکنش. کد خطا: %s', $http_status));
+                echo $idpay->error(sprintf('خطا هنگام بررسی وضعیت تراکنش. وضعیت خطا: %s - کد خطا: %s - پیام خطا: %s', $http_status, $result->error_code, $result->error_message));
+            }
+            else {
+	            $inquiry_status = empty($result->status) ? NULL : $result->status;
+	            $inquiry_track_id = empty($result->track_id) ? NULL : $result->track_id;
+	            $inquiry_order_id = empty($result->order_id) ? NULL : $result->order_id;
+	            $inquiry_amount = empty($result->amount) ? NULL : $result->amount;
+
+	            if (empty($inquiry_status) || empty($inquiry_track_id) || empty($inquiry_amount) ||  $inquiry_status != 100 || $inquiry_order_id !== $orderid) {
+		            echo $idpay->error(idpay_get_failed_message($inquiry_track_id, $inquiry_order_id));
+	            } else {
+		            error_reporting(E_ALL);
+
+		            if (Configuration::get('idpay_currency') == "toman") $amount /= 10;
+
+		            $idpay->validateOrder($inquiry_order_id, Configuration::get('PS_OS_PAYMENT'), $amount, $idpay->displayName, "سفارش تایید شده / کد رهگیری {$inquiry_track_id}", array(), $cookie->id_currency);
+		            $_SESSION['order' . $inquiry_order_id] = '';
+		            Tools::redirect('history.php');
+	            }
             }
 
-            $inquiry_status = empty($result->status) ? NULL : $result->status;
-            $inquiry_track_id = empty($result->track_id) ? NULL : $result->track_id;
-            $inquiry_order_id = empty($result->order_id) ? NULL : $result->order_id;
-            $inquiry_amount = empty($result->amount) ? NULL : $result->amount;
-
-            if (empty($inquiry_status) || empty($inquiry_track_id) || empty($inquiry_amount) || $inquiry_amount != $amount || $inquiry_status != 100 || $inquiry_order_id !== $orderid) {
-                echo $idpay->error(idpay_get_failed_message($inquiry_track_id, $inquiry_order_id));
-            } else {
-                error_reporting(E_ALL);
-
-                if (Configuration::get('idpay_currency') == "toman") $amount /= 10;
-
-                $idpay->validateOrder($inquiry_order_id, Configuration::get('PS_OS_PAYMENT'), $amount, $idpay->displayName, "سفارش تایید شده / کد رهگیری {$inquiry_track_id}", array(), $cookie->id_currency);
-                $_SESSION['order' . $inquiry_order_id] = '';
-                Tools::redirect('history.php');
-            }
         } else {
             echo $idpay->error('کاربر از انجام تراکنش منصرف شده است');
         }
