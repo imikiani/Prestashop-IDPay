@@ -139,7 +139,7 @@ class idpay extends PaymentModule
         curl_close($ch);
 
         if ($http_status != 201 || empty($result) || empty($result->id) || empty($result->link)) {
-            echo $this->error(sprintf('خطا هنگام ایجاد تراکنش. کد خطا: %s', $http_status));
+            echo $this->error(sprintf('خطا هنگام ایجاد تراکنش. وضعیت خطا: %s - کد خطا: %s - پیام خطا: %s', $http_status, $result->error_code, $result->error_message));
         } else {
             echo $this->success($this->l('Redirecting...'));
             echo '<script>window.location=("' . $result->link . '");</script>';
