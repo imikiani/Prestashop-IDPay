@@ -99,15 +99,31 @@ class idpay extends PaymentModule
         $this->_html .= '</form><br></div>';
     }
 
+    /**
+     * @param \CartCore $cart
+     */
     public function do_payment($cart)
     {
 
         $api_key = Configuration::get('idpay_api_key');
         $sandbox = Configuration::get('idpay_sandbox') == 'yes' ? 'true' : 'false';
-        $amount = floatval(number_format($cart->getOrderTotal(true, 3), 2, '.', ''));
+        $amount = $cart ->getOrderTotal();
         if (Configuration::get('idpay_currency') == "toman") {
             $amount *= 10;
         }
+
+        // Customer information
+        $details = $cart->getSummaryDetails();
+        $delivery = $details['delivery'];
+        $name = $delivery->firstname . ' ' . $delivery->lastname;
+        $phone = $delivery->phone_mobile;
+
+        if (empty($phone_mobile)) {
+            $phone = $delivery->phone;
+        }
+        // There is not any email field in the cart details.
+        // So we gather the customer email from this line of code:
+        $mail = Context::getContext()->customer->email;
 
         $desc = $Description = 'پرداخت سفارش شماره: ' . $cart->id;
         $callback = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? "https://" : "http://") . $_SERVER['HTTP_HOST'] . __PS_BASE_URI__ . 'modules/idpay/callback.php?do=callback&hash=' . md5($amount . $cart->id . Configuration::get('idpay_HASH_KEY'));
@@ -119,12 +135,14 @@ class idpay extends PaymentModule
         $data = array(
             'order_id' => $cart->id,
             'amount' => $amount,
-            'phone' => '',
+            'name' => $name,
+            'phone' => $phone,
+            'mail' => $mail,
             'desc' => $desc,
             'callback' => $callback,
         );
 
-        $ch = curl_init('https://api.idpay.ir/v1/payment');
+        $ch = curl_init('https://test.idpay.ir/v1.1/payment');
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
