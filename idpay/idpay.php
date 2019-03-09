@@ -142,7 +142,7 @@ class idpay extends PaymentModule
             'callback' => $callback,
         );
 
-        $ch = curl_init('https://test.idpay.ir/v1.1/payment');
+        $ch = curl_init('https://api.idpay.ir/v1.1/payment');
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
