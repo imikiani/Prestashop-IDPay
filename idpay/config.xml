@@ -2,7 +2,7 @@
 <module>
 	<name>idpay</name>
 	<displayName><![CDATA[IDPay Payment Module]]></displayName>
-	<version><![CDATA[1.0]]></version>
+	<version><![CDATA[2.0]]></version>
 	<description><![CDATA[Online Payment With IDPay]]></description>
 	<author><![CDATA[Developer: JMDMahdi, Publisher: IDPay]]></author>
 	<tab><![CDATA[payments_gateways]]></tab>

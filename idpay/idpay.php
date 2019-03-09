@@ -23,7 +23,7 @@ class idpay extends PaymentModule
 
         $this->name = 'idpay';
         $this->tab = 'payments_gateways';
-        $this->version = '1.0';
+        $this->version = '2.0';
         $this->author = 'Developer: JMDMahdi, Publisher: IDPay';
         $this->currencies = true;
         $this->currencies_mode = 'radio';
